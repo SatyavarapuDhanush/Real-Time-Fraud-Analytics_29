@@ -101,7 +101,7 @@ def generate_fraud_distribution():
         plot_url = base64.b64encode(img.getvalue()).decode()
         plt.close()
         
-        return plot_url
+        return plot_url     
     return None
 
 # Routes
