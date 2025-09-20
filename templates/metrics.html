@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics & Metrics - Fraud Detection System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">📊 Analytics & Performance Metrics</h1>
+    </div>
+</div>
+
+<!-- Key Metrics Cards -->
+<div class="row">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h3>{{ metrics.total_predictions }}</h3>
+                <p class="card-text">Total Predictions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+                <h3>{{ metrics.fraud_count }}</h3>
+                <p class="card-text">Fraud Detected</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h3>{{ metrics.legitimate_count }}</h3>
+                <p class="card-text">Legitimate Transactions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h3>{{ metrics.fraud_rate }}%</h3>
+                <p class="card-text">Fraud Rate</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Visualizations -->
+<div class="row mt-4">
+    {% if fraud_dist_plot %}
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Fraud vs Legitimate Distribution</h5>
+            </div>
+            <div class="card-body text-center">
+                <img src="data:image/png;base64,{{ fraud_dist_plot }}" class="img-fluid" alt="Fraud Distribution">
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Model Performance Metrics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <h6>Average Fraud Probability</h6>
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div class="progress-bar bg-warning" role="progressbar" 
+                                 style="width: {{ (metrics.avg_probability * 100)|round }}%">
+                                {{ metrics.avg_probability }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h6>Detection Rate</h6>
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: {{ metrics.fraud_rate }}%">
+                                {{ metrics.fraud_rate }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h6>Performance Summary</h6>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Total Predictions Made</span>
+                        <strong>{{ metrics.total_predictions }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Fraudulent Transactions</span>
+                        <strong class="text-danger">{{ metrics.fraud_count }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Legitimate Transactions</span>
+                        <strong class="text-success">{{ metrics.legitimate_count }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Average Fraud Probability</span>
+                        <strong>{{ metrics.avg_probability }}</strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Analytics -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Generate Additional Visualizations</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Available Chart Types:</h6>
+                        <div class="list-group">
+                            <button type="button" class="list-group-item list-group-item-action" onclick="generateChart('confusion_matrix')">
+                                📊 Confusion Matrix
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action" onclick="generateChart('roc_curve')">
+                                📈 ROC Curve
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action" onclick="generateChart('precision_recall')">
+                                📉 Precision-Recall Curve
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action" onclick="generateChart('probability_histogram')">
+                                📊 Probability Distribution
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action" onclick="generateChart('time_series')">
+                                📅 Time Series Analysis
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="generatedChart" class="text-center">
+                            <p class="text-muted">Click on a chart type to generate visualization</p>
+                            <div id="chartSpinner" class="d-none">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p>Generating chart...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Model Information -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Model Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h6>📋 Model Status</h6>
+                    <p id="modelStatus">Checking model status...</p>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="checkModelStatus()">Refresh Status</button>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h6>Model Features</h6>
+                        <ul>
+                            <li>Transaction Amount</li>
+                            <li>Transaction Hour</li>
+                            <li>Day of Week</li>
+                            <li>Merchant Category</li>
+                            <li>Customer Age</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Prediction Thresholds</h6>
+                        <ul>
+                            <li><span class="badge bg-success">Low Risk:</span> < 50%</li>
+                            <li><span class="badge bg-warning">Medium Risk:</span> 50-80%</li>
+                            <li><span class="badge bg-danger">High Risk:</span> > 80%</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

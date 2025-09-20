@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Fraud Alerts - Fraud Detection System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">🚨 Fraud Alerts</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5>High Risk Transactions</h5>
+                <small>Transactions flagged as fraud or with high fraud probability</small>
+            </div>
+            <div class="card-body">
+                {% if alerts %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Alert ID</th>
+                                <th>Timestamp</th>
+                                <th>Fraud Probability</th>
+                                <th>Risk Level</th>
+                                <th>Transaction Data</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alert in alerts %}
+                            <tr class="{% if alert.prediction == 1 %}table-danger{% elif alert.probability > 0.8 %}table-warning{% endif %}">
+                                <td><strong>#{{ alert.id }}</strong></td>
+                                <td>{{ alert.timestamp }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1 me-2" style="height: 20px;">
+                                            <div class="progress-bar bg-danger" role="progressbar" 
+                                                 style="width: {{ (alert.probability * 100)|round }}%">
+                                                {{ (alert.probability * 100)|round(1) }}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if alert.probability > 0.9 %}
+                                        <span class="badge bg-danger fs-6">🔴 Critical</span>
+                                    {% elif alert.probability > 0.7 %}
+                                        <span class="badge bg-warning fs-6">🟡 High</span>
+                                    {% else %}
+                                        <span class="badge bg-info fs-6">🔵 Medium</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" type="button" 
+                                            data-bs-toggle="collapse" data-bs-target="#data-{{ alert.id }}">
+                                        View Details
+                                    </button>
+                                    <div class="collapse mt-2" id="data-{{ alert.id }}">
+                                        <div class="card card-body bg-light">
+                                            <small><pre>{{ alert.transaction_data }}</pre></small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-success" 
+                                                onclick="markResolved({{ alert.id }})">
+                                            ✅ Resolve
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-warning" 
+                                                onclick="markFalsePositive({{ alert.id }})">
+                                            ❌ False Positive
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-success">
+                    <h5>🎉 No Active Alerts</h5>
+                    <p>Great news! No high-risk transactions have been detected recently.</p>
+                    <p>The system is continuously monitoring for fraudulent activity.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Alert Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h3 class="text-danger">{{ alerts|selectattr("probability", "gt", 0.9)|list|length }}</h3>
+                        <small>Critical Alerts</small>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="text-warning">{{ alerts|selectattr("probability", "gt", 0.7)|selectattr("probability", "le", 0.9)|list|length }}</h3>
+                        <small>High Risk</small>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="text-info">{{ alerts|selectattr("probability", "le", 0.7)|list|length }}</h3>
+                        <small>Medium Risk</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Alert Configuration</h5>
+            </div>
+            <div class="card-body">
+                <form id="alertConfig">
+                    <div class="mb-3">
+                        <label for="alertThreshold" class="form-label">Alert Threshold</label>
+                        <input type="range" class="form-range" id="alertThreshold" min="0.5" max="1.0" step="0.1" value="0.7">
+                        <div class="form-text">Current threshold: <span id="thresholdValue">0.7</span></div>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="emailAlerts" checked>
+                        <label class="form-check-label" for="emailAlerts">
+                            Email notifications for critical alerts
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="autoBlock" checked>
+                        <label class="form-check-label" for="autoBlock">
+                            Auto-block transactions above 95% fraud probability
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-2">Save Configuration</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

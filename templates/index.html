@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Fraud Detection System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Fraud Detection Dashboard</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Predictions</h5>
+                <h2 class="card-text">{{ total_predictions }}</h2>
+                <small>All time predictions</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <h5 class="card-title">Fraud Detected</h5>
+                <h2 class="card-text">{{ fraud_count }}</h2>
+                <small>Fraudulent transactions</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h5 class="card-title">Fraud Rate</h5>
+                <h2 class="card-text">{{ fraud_rate }}%</h2>
+                <small>Percentage of fraud</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Quick Prediction</h5>
+            </div>
+            <div class="card-body">
+                <form id="singlePredictionForm">
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="amount" step="0.01" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="hour" class="form-label">Hour</label>
+                                <input type="number" class="form-control" id="hour" min="0" max="23" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="day" class="form-label">Day of Week</label>
+                                <input type="number" class="form-control" id="day" min="0" max="6" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="merchant_category" class="form-label">Merchant Category</label>
+                                <input type="number" class="form-control" id="merchant_category" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="customer_age" class="form-label">Customer Age</label>
+                                <input type="number" class="form-control" id="customer_age" required>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Predict</button>
+                </form>
+                <div id="predictionResult" class="mt-3" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Batch Prediction</h5>
+            </div>
+            <div class="card-body">
+                <form id="batchPredictionForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="csvFile" class="form-label">Upload CSV File</label>
+                        <input type="file" class="form-control" id="csvFile" accept=".csv" required>
+                        <div class="form-text">Upload a CSV file with transaction data for batch prediction.</div>
+                    </div>
+                    <button type="submit" class="btn btn-success">Process Batch</button>
+                </form>
+                <div id="batchResult" class="mt-3" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <h5>📋 Getting Started</h5>
+            <p>To use the fraud detection system:</p>
+            <ol>
+                <li>Upload your trained ML model as <code>fraud_model.pkl</code> to the <code>ml/</code> folder</li>
+                <li>Use the Quick Prediction form above to test individual transactions</li>
+                <li>Upload CSV files for batch processing using the Batch Prediction form</li>
+                <li>Monitor results in the <a href="{{ url_for('transactions') }}">Transactions</a> and <a href="{{ url_for('alerts') }}">Alerts</a> pages</li>
+                <li>View analytics and visualizations in the <a href="{{ url_for('metrics') }}">Metrics</a> page</li>
+            </ol>
+        </div>
+    </div>
+</div>
+{% endblock %}
