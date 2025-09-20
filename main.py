@@ -228,8 +228,8 @@ def batch_predict():
         if file.filename == '':
             return jsonify({'error': 'No file selected'}), 400
         
-        # Read CSV data
-        df = pd.read_csv(file)
+        # Read CSV data from FileStorage object
+        df = pd.read_csv(file.stream)
         batch_id = f"batch_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         
         # Prepare features for prediction (adjust based on your model)
