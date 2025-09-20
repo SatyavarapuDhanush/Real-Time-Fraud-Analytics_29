@@ -47,13 +47,13 @@ function initializeForms() {
 async function handleSinglePrediction(event) {
     event.preventDefault();
     
-    const formData = new FormData(event.target);
+    // Get form elements directly by ID instead of using FormData
     const transactionData = {
-        amount: parseFloat(formData.get('amount')),
-        hour: parseInt(formData.get('hour')),
-        day: parseInt(formData.get('day')),
-        merchant_category: parseInt(formData.get('merchant_category')),
-        customer_age: parseInt(formData.get('customer_age'))
+        amount: parseFloat(document.getElementById('amount').value),
+        hour: parseInt(document.getElementById('hour').value),
+        day: parseInt(document.getElementById('day').value),
+        merchant_category: parseInt(document.getElementById('merchant_category').value),
+        customer_age: parseInt(document.getElementById('customer_age').value)
     };
     
     const resultDiv = document.getElementById('predictionResult');

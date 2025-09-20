@@ -228,6 +228,10 @@ def batch_predict():
         if file.filename == '':
             return jsonify({'error': 'No file selected'}), 400
         
+        # Check file extension
+        if not file.filename.lower().endswith('.csv'):
+            return jsonify({'error': 'Please upload a CSV file. ZIP files are not supported directly. Extract the CSV file first.'}), 400
+        
         # Read CSV data from FileStorage object
         df = pd.read_csv(file.stream)
         batch_id = f"batch_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
