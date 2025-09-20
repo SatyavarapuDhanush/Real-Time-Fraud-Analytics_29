@@ -84,9 +84,19 @@ async function handleSinglePrediction(event) {
 async function handleBatchPrediction(event) {
     event.preventDefault();
     
-    const formData = new FormData(event.target);
-    const resultDiv = document.getElementById('batchResult');
+    const fileInput = document.getElementById('csvFile');
+    const file = fileInput.files[0];
     
+    if (!file) {
+        document.getElementById('batchResult').innerHTML = `<div class="alert alert-danger">Please select a CSV file to upload.</div>`;
+        document.getElementById('batchResult').style.display = 'block';
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const resultDiv = document.getElementById('batchResult');
     resultDiv.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Processing batch...';
     resultDiv.style.display = 'block';
     
