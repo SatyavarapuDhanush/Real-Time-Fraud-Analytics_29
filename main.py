@@ -80,10 +80,20 @@ def generate_fraud_distribution():
     
     if not df.empty:
         plt.figure(figsize=(8, 6))
-        labels = ['Not Fraud', 'Fraud']
-        colors = ['lightblue', 'salmon']
+        
+        # Create dynamic labels based on actual data
+        labels = []
+        colors = []
+        for _, row in df.iterrows():
+            if row['prediction'] == 0:
+                labels.append('Legitimate')
+                colors.append('lightblue')
+            else:
+                labels.append('Fraud')
+                colors.append('salmon')
+        
         plt.pie(df['count'], labels=labels, colors=colors, autopct='%1.1f%%')
-        plt.title('Fraud vs Non-Fraud Distribution')
+        plt.title('Transaction Distribution')
         
         img = io.BytesIO()
         plt.savefig(img, format='png', bbox_inches='tight')
@@ -229,7 +239,7 @@ def batch_predict():
             return jsonify({'error': 'No file selected'}), 400
         
         # Check file extension
-        if not file.filename.lower().endswith('.csv'):
+        if not file.filename or not file.filename.lower().endswith('.csv'):
             return jsonify({'error': 'Please upload a CSV file. ZIP files are not supported directly. Extract the CSV file first.'}), 400
         
         # Read CSV data from FileStorage object
